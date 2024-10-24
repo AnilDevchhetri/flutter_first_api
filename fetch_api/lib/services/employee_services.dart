@@ -21,7 +21,6 @@ class EmployeeServices {
           allEmployees.add(newEmployee);
         }
 
-        print(allEmployees);
         return allEmployees;
       } else {}
     } catch (e) {
