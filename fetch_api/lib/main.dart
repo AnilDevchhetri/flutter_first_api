@@ -34,7 +34,7 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
           title: const Text(
             'Khanji Levels',
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.white),
           ),
           backgroundColor: const Color(0xFF1E88E5),
           centerTitle: true,

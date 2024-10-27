@@ -4,6 +4,15 @@ class Khanji {
   String? slug;
   String? meaning;
   String? strokeImageUrl;
+
+  String? onyomi;
+  String? kunyomi;
+  int? strokCount;
+  String? onyomiWords;
+  String? kunyomiWords;
+  String? specialWords;
+  String? jlptLevel;
+
   List<Example> examples;
 
   Khanji({
@@ -12,6 +21,13 @@ class Khanji {
     this.slug,
     this.meaning,
     this.strokeImageUrl,
+    this.onyomi,
+    this.kunyomi,
+    this.strokCount,
+    this.onyomiWords,
+    this.kunyomiWords,
+    this.specialWords,
+    this.jlptLevel,
     this.examples = const [],
   });
 
@@ -21,6 +37,13 @@ class Khanji {
         slug = json['slug'],
         meaning = json['meaning'],
         strokeImageUrl = json['stroke_image_url'],
+        onyomi = json['onyomi'],
+        kunyomi = json['kunyomi'],
+        strokCount = json['stroke_count'],
+        onyomiWords = json['onyomi_words'],
+        kunyomiWords = json['kunyomi_words'],
+        specialWords = json['special_words'],
+        jlptLevel = json['jlpt_level'],
         examples = (json['examples'] as List<dynamic>)
             .map((example) => Example.fromJson(example))
             .toList();

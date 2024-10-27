@@ -52,29 +52,80 @@ class _KhanjiListScreenState extends State<KhanjiListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Khanji List - ${widget.level}"),
+        title: Text(
+          "Khanji List - ${widget.level}",
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF1E88E5),
+        centerTitle: true,
       ),
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              itemCount: khanjiList.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(khanjiList[index].khanji ?? ''),
-                  subtitle: Text(khanjiList[index].meaning ?? 'No meaning'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            KhanjiDetailScreen(khanji: khanjiList[index]),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    itemCount: khanjiList.length,
+                    itemBuilder: (context, index) {
+                      final khanjiData = khanjiList[index];
+                      return Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                                color: Colors.grey.shade300, width: 1),
+                          ),
+                        ),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor:
+                                const Color.fromARGB(255, 14, 50, 66),
+                            child: Text(khanjiData.khanji ?? '',
+                                style: const TextStyle(
+                                    fontSize: 25, color: Colors.white)),
+                          ),
+                          title: Text(
+                            (khanjiData.onyomi ?? '').split('\n').first.length >
+                                    12
+                                ? '${(khanjiData.onyomi ?? '').split('\n').first.substring(0, 12)}...'
+                                : (khanjiData.onyomi ?? '').split('\n').first,
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                          subtitle: Text(
+                            (khanjiData.meaning ?? '')
+                                        .split('\n')
+                                        .first
+                                        .length >
+                                    35
+                                ? '${(khanjiData.meaning ?? '').split('\n').first.substring(0, 35)}...'
+                                : (khanjiData.meaning ?? '').split('\n').first,
+                            style: const TextStyle(fontSize: 15),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.star_border,
+                                    color: Colors.yellow),
+                                iconSize: 30.0,
+                                onPressed: () {
+                                  // Handle star action
+                                },
+                              ),
+                            ],
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => KhanjiDetailScreen(
+                                    khanji: khanjiList[index]),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
           ),
           // Pagination controls
           if (totalPages > 1)
@@ -84,7 +135,7 @@ class _KhanjiListScreenState extends State<KhanjiListScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.arrow_back),
+                    icon: const Icon(Icons.arrow_back),
                     onPressed: currentPage > 1
                         ? () {
                             setState(() {
@@ -96,7 +147,7 @@ class _KhanjiListScreenState extends State<KhanjiListScreen> {
                   ),
                   Text("Page $currentPage of $totalPages"),
                   IconButton(
-                    icon: Icon(Icons.arrow_forward),
+                    icon: const Icon(Icons.arrow_forward),
                     onPressed: currentPage < totalPages
                         ? () {
                             setState(() {
