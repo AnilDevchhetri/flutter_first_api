@@ -29,7 +29,7 @@ class KhanjiDetailScreen extends StatelessWidget {
                 // Large Kanji character in the center with shadow
                 Center(
                   child: Container(
-                    padding: const EdgeInsets.fromLTRB(36, 2, 36, 2),
+                    padding: const EdgeInsets.fromLTRB(25, 2, 25, 2),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       boxShadow: const [
@@ -52,7 +52,7 @@ class KhanjiDetailScreen extends StatelessWidget {
                     child: Text(
                       khanji.khanji ?? '',
                       style: const TextStyle(
-                        fontSize: 180,
+                        fontSize: 120,
                         fontWeight: FontWeight.w300,
                       ),
                     ),
@@ -60,7 +60,7 @@ class KhanjiDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // Stroke image with horizontal scrolling if needed
+                //Stroke image with horizontal scrolling if needed
                 if (khanji.strokeImageUrl != null &&
                     khanji.strokeImageUrl!.isNotEmpty)
                   SingleChildScrollView(
@@ -95,19 +95,32 @@ class KhanjiDetailScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // _wordsExample(context, khanji.onyomiWords ?? 'N/A'),
-                Card(
-                  color: Colors.white,
-                  margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                  elevation: 4.0, // Set elevation to create shadow
-
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(khanji.onyomiWords ?? 'N/A'),
+                const Text(
+                  "Onyomi Words",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-
+                _cardDetail(context, khanji.onyomiWords ?? 'N/A'),
+                const SizedBox(height: 20),
+                const Text(
+                  "Kunyomi Words",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                _cardDetail(context, khanji.kunyomiWords ?? 'N/A'),
+                const SizedBox(height: 20),
+                const Text(
+                  "Some Special Words",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                _cardDetail(context, khanji.specialWords ?? 'N/A'),
                 const SizedBox(height: 20),
 
                 // Examples section
@@ -118,9 +131,13 @@ class KhanjiDetailScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+
                 const SizedBox(height: 10),
                 Column(
-                  children: khanji.examples.map((example) {
+                  children: khanji.examples.asMap().entries.map((entry) {
+                    int index = entry.key; // Index of the item
+                    var example = entry.value; // Example item itself
+
                     return Container(
                       width: MediaQuery.of(context).size.width - 8,
                       margin: const EdgeInsets.symmetric(vertical: 4.0),
@@ -138,7 +155,7 @@ class KhanjiDetailScreen extends StatelessWidget {
                                     Colors.green, // Background color for Kanji
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                  example.khanjiSentence ?? '',
+                                  '#${index + 1}. ${example.khanjiSentence ?? ''}',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
@@ -245,6 +262,25 @@ class KhanjiDetailScreen extends StatelessWidget {
           const SizedBox(height: 4),
           Text(content),
         ],
+      ),
+    );
+  }
+
+  Widget _cardDetail(
+    BuildContext context,
+    String content,
+  ) {
+    return Container(
+      width: MediaQuery.of(context).size.width - 8, // Match the card width
+      child: Card(
+        color: Colors.white,
+        margin: const EdgeInsets.symmetric(horizontal: 4.0),
+        elevation: 4.0, // Set elevation to create shadow
+
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(content),
+        ),
       ),
     );
   }

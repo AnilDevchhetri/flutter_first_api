@@ -15,7 +15,7 @@ class KhanjiListScreen extends StatefulWidget {
 class _KhanjiListScreenState extends State<KhanjiListScreen> {
   List<Khanji> khanjiList = [];
   int currentPage = 1;
-  int totalPages = 1; // Keep track of total pages
+  int totalPages = 1;
   bool isLoading = false;
 
   @override
@@ -25,7 +25,7 @@ class _KhanjiListScreenState extends State<KhanjiListScreen> {
   }
 
   Future<void> fetchKhanjiList() async {
-    if (isLoading) return; // Prevent multiple requests
+    if (isLoading) return;
     setState(() {
       isLoading = true;
     });
@@ -35,17 +35,67 @@ class _KhanjiListScreenState extends State<KhanjiListScreen> {
           await KhanjiServices().getKhanjiList(widget.level, page: currentPage);
       setState(() {
         khanjiList = response['data'];
-        totalPages = response[
-            'last_page']; // Get the total number of pages from response
+        totalPages = response['last_page'];
       });
     } catch (e) {
-      // Handle error
       print("Error fetching data: $e");
     } finally {
       setState(() {
         isLoading = false;
       });
     }
+  }
+
+  Widget buildPageButton(int page) {
+    return TextButton(
+      onPressed: () {
+        setState(() {
+          currentPage = page;
+        });
+        fetchKhanjiList();
+      },
+      child: Text(
+        '$page',
+        style: TextStyle(
+          color: page == currentPage ? Colors.white : Colors.black,
+          fontWeight: page == currentPage ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+      style: TextButton.styleFrom(
+        backgroundColor:
+            page == currentPage ? Colors.blue : Colors.grey.shade200,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      ),
+    );
+  }
+
+  Widget buildPagination() {
+    List<Widget> pageButtons = [];
+
+    int startPage = (currentPage - 2).clamp(1, totalPages);
+    int endPage = (currentPage + 2).clamp(1, totalPages);
+
+    if (startPage > 1) {
+      pageButtons.add(buildPageButton(1));
+      if (startPage > 2) pageButtons.add(const Text("..."));
+    }
+
+    for (int i = startPage; i <= endPage; i++) {
+      pageButtons.add(buildPageButton(i));
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) pageButtons.add(const Text("..."));
+      pageButtons.add(buildPageButton(totalPages));
+    }
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: pageButtons,
+      ),
+    );
   }
 
   @override
@@ -127,38 +177,10 @@ class _KhanjiListScreenState extends State<KhanjiListScreen> {
                     },
                   ),
           ),
-          // Pagination controls
           if (totalPages > 1)
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: currentPage > 1
-                        ? () {
-                            setState(() {
-                              currentPage--;
-                            });
-                            fetchKhanjiList();
-                          }
-                        : null,
-                  ),
-                  Text("Page $currentPage of $totalPages"),
-                  IconButton(
-                    icon: const Icon(Icons.arrow_forward),
-                    onPressed: currentPage < totalPages
-                        ? () {
-                            setState(() {
-                              currentPage++;
-                            });
-                            fetchKhanjiList();
-                          }
-                        : null,
-                  ),
-                ],
-              ),
+              child: buildPagination(),
             ),
         ],
       ),
