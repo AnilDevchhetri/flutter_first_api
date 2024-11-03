@@ -1,3 +1,6 @@
+import 'package:fetch_api/database/bookmark_database.dart';
+import 'package:fetch_api/models/bookmarks.dart';
+import 'package:fetch_api/utils/snackbar_util.dart';
 import 'package:flutter/material.dart';
 import '../models/khanji.dart';
 import '../services/khanji_services.dart';
@@ -17,11 +20,39 @@ class _KhanjiListScreenState extends State<KhanjiListScreen> {
   int currentPage = 1;
   int totalPages = 1;
   bool isLoading = false;
+  Set<int> bookmarkedKhanjiIds = {};
 
-  @override
-  void initState() {
-    super.initState();
-    fetchKhanjiList();
+  Future<void> toggleBookmark(Khanji khanji) async {
+    if (khanji.id == null) {
+      showCustomSnackBar(context, "khanjiId can't be empty",
+          backgroundColor: Colors.red);
+      return;
+    }
+    final isBookmarked =
+        await BookmarkDatabase.instance.isBookmarked(khanji.id!);
+
+    if (isBookmarked) {
+      await BookmarkDatabase.instance.deleteBookmarkByKhanjiId(khanji.id!);
+      setState(() {
+        bookmarkedKhanjiIds.remove(khanji.id);
+      });
+      showCustomSnackBar(context, "Khanji removed from Bookmarks.",
+          backgroundColor: Colors.red);
+    } else {
+      final bookmark = Bookmarks(
+        khanjiId: khanji.id,
+        khanji: khanji.khanji?.isNotEmpty == true ? khanji.khanji! : "N/A",
+        onyomi: khanji.onyomi?.isNotEmpty == true ? khanji.onyomi! : "N/A",
+        kunyomi: khanji.kunyomi?.isNotEmpty == true ? khanji.kunyomi! : "N/A",
+        meaning: khanji.meaning?.isNotEmpty == true ? khanji.meaning! : "N/A",
+      );
+      await BookmarkDatabase.instance.createBookmark(bookmark);
+      setState(() {
+        bookmarkedKhanjiIds.add(khanji.id!);
+      });
+      showCustomSnackBar(context, "Khanji Added to Bookmarks.",
+          backgroundColor: Colors.green);
+    }
   }
 
   Future<void> fetchKhanjiList() async {
@@ -37,6 +68,13 @@ class _KhanjiListScreenState extends State<KhanjiListScreen> {
         khanjiList = response['data'];
         totalPages = response['last_page'];
       });
+
+      // Update bookmark status for current page items
+      for (var khanji in khanjiList) {
+        final isBookmarked =
+            await BookmarkDatabase.instance.isBookmarked(khanji.id!);
+        if (isBookmarked) bookmarkedKhanjiIds.add(khanji.id!);
+      }
     } catch (e) {
       print("Error fetching data: $e");
     } finally {
@@ -44,6 +82,12 @@ class _KhanjiListScreenState extends State<KhanjiListScreen> {
         isLoading = false;
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchKhanjiList();
   }
 
   Widget buildPageButton(int page) {
@@ -118,6 +162,9 @@ class _KhanjiListScreenState extends State<KhanjiListScreen> {
                     itemCount: khanjiList.length,
                     itemBuilder: (context, index) {
                       final khanjiData = khanjiList[index];
+                      final isBookmarked =
+                          bookmarkedKhanjiIds.contains(khanjiData.id);
+
                       return Container(
                         decoration: BoxDecoration(
                           border: Border(
@@ -129,9 +176,11 @@ class _KhanjiListScreenState extends State<KhanjiListScreen> {
                           leading: CircleAvatar(
                             backgroundColor:
                                 const Color.fromARGB(255, 14, 50, 66),
-                            child: Text(khanjiData.khanji ?? '',
-                                style: const TextStyle(
-                                    fontSize: 25, color: Colors.white)),
+                            child: Text(
+                              khanjiData.khanji ?? '',
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 18),
+                            ),
                           ),
                           title: Text(
                             (khanjiData.onyomi ?? '').split('\n').first.length >
@@ -150,25 +199,20 @@ class _KhanjiListScreenState extends State<KhanjiListScreen> {
                                 : (khanjiData.meaning ?? '').split('\n').first,
                             style: const TextStyle(fontSize: 15),
                           ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.star_border,
-                                    color: Colors.yellow),
-                                iconSize: 30.0,
-                                onPressed: () {
-                                  // Handle star action
-                                },
-                              ),
-                            ],
+                          trailing: IconButton(
+                            icon: Icon(
+                              isBookmarked ? Icons.star : Icons.star_border,
+                              color: isBookmarked ? Colors.amber : Colors.grey,
+                            ),
+                            onPressed: () => toggleBookmark(khanjiData),
+                            iconSize: 35.0,
                           ),
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => KhanjiDetailScreen(
-                                    khanji: khanjiList[index]),
+                                builder: (context) =>
+                                    KhanjiDetailScreen(khanji: khanjiData),
                               ),
                             );
                           },
@@ -177,11 +221,7 @@ class _KhanjiListScreenState extends State<KhanjiListScreen> {
                     },
                   ),
           ),
-          if (totalPages > 1)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: buildPagination(),
-            ),
+          buildPagination(),
         ],
       ),
     );

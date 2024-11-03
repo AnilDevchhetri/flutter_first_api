@@ -1,3 +1,4 @@
+import 'package:fetch_api/screens/drawingscreen.dart';
 import 'package:flutter/material.dart';
 import '../models/khanji.dart';
 
@@ -17,6 +18,19 @@ class KhanjiDetailScreen extends StatelessWidget {
         backgroundColor: const Color(0xFF1E88E5),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white, size: 30),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => Drawingscreen()));
+        },
+        backgroundColor: Color(0xFF1E88E5),
+        child: Icon(
+          Icons.draw_sharp,
+          color: Colors.white,
+        ),
+        elevation: 6,
+        tooltip: 'Practice',
       ),
       body: SingleChildScrollView(
         child: Container(

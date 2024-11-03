@@ -1,3 +1,5 @@
+import 'package:fetch_api/screens/bookmark_list.dart';
+import 'package:fetch_api/screens/drawingscreen.dart';
 import 'package:flutter/material.dart';
 import 'screens/khanji_list_screen.dart';
 
@@ -20,30 +22,41 @@ class MyApp extends StatelessWidget {
 }
 
 class HomeScreen extends StatelessWidget {
+  HomeScreen({Key? key}) : super(key: key);
+
   final List<String> levels = [
     'jlptn5',
     'jlptn4',
     'jlptn3',
     'jlptn2',
-    'jlptn1'
+    'jlptn1',
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text(
-            'Khanji Levels',
-            style: TextStyle(color: Colors.white),
+        title: const Text(
+          'Kanji Levels',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF1E88E5),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BookmarkList(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.star, color: Colors.white),
           ),
-          backgroundColor: const Color(0xFF1E88E5),
-          centerTitle: true,
-          actions: [
-            IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.search, color: Colors.white))
-          ],
-          iconTheme: const IconThemeData(color: Colors.white, size: 30)),
+        ],
+        iconTheme: const IconThemeData(color: Colors.white, size: 30),
+      ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -54,7 +67,7 @@ class HomeScreen extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  'JLPT Khanji Master',
+                  'JLPT Kanji Master',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24,
@@ -67,17 +80,18 @@ class HomeScreen extends StatelessWidget {
                 decoration: const BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: Colors.grey, // Color of the bottom border
-                      width: 1.0, // Width of the bottom border
+                      color: Colors.grey,
+                      width: 1.0,
                     ),
                   ),
                 ),
                 child: ListTile(
-                  title: Text(level.toUpperCase()),
+                  title: Text(
+                    level.toUpperCase(),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   onTap: () {
-                    // Close the drawer before navigating
                     Navigator.pop(context);
-                    // Navigate to the respective level screen
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -86,55 +100,104 @@ class HomeScreen extends StatelessWidget {
                     );
                   },
                 ),
-              )
+              ),
           ],
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(
-            top: 16.0, left: 8.0, right: 8.0, bottom: 8.0),
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 10.0,
-            mainAxisSpacing: 10.0,
-            childAspectRatio: 2,
+      body: ListView(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFF1E88E5),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
+            ),
+            child: const Padding(
+              padding: EdgeInsets.only(bottom: 10.0),
+              child: ListTile(
+                title: Text(
+                  'Master Kanji',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Text(
+                  'Best Way to Prepare for JLPT',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                trailing: IconButton(
+                  onPressed: null, // Leave blank for now
+                  icon: Icon(Icons.search, size: 30, color: Colors.white),
+                ),
+              ),
+            ),
           ),
-          itemCount: levels.length,
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        KhanjiListScreen(level: levels[index]),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics:
+                  NeverScrollableScrollPhysics(), // Prevents scrolling within the ListView
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16.0,
+                mainAxisSpacing: 16.0,
+                childAspectRatio: 1.5,
+              ),
+              itemCount: levels.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            KhanjiListScreen(level: levels[index]),
+                      ),
+                    );
+                  },
+                  child: Card(
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    color: Colors.blueAccent.shade100,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.book,
+                            size: 40,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(height: 8.0),
+                          Text(
+                            levels[index].toUpperCase(),
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 );
               },
-              child: Card(
-                elevation: 4, // Creates shadow for the card
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: Center(
-                  child: Text(
-                    levels[index].toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
-
-
-// blue color : 060ef3
-//10_28_2024_10_18_pm
